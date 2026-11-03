@@ -1,4 +1,4 @@
-const postStore = require('../data/postStore');
+/*const postStore = require('../data/postStore');
 
 function listPosts() {
   return postStore.posts;
@@ -41,3 +41,43 @@ function removePost(id) {
 }
 
 module.exports = { listPosts, getPost, createPost, updatePost, removePost };
+*/
+const postRepository = require('../repositories/postRepository');
+
+function listPosts() {
+  return postRepository.findAll();
+}
+
+function getPost(id) {
+  return postRepository.findById(Number(id));
+}
+
+function createPost(fields) {
+  if (!fields || !fields.title) {
+    const error = new Error('Title is required');
+    error.statusCode = 422;
+    throw error;
+  }
+
+  return postRepository.create({
+    title: fields.title,
+    body: fields.body || '',
+    authorId: fields.authorId,
+  });
+}
+
+function updatePost(id, patch) {
+  return postRepository.update(Number(id), patch);
+}
+
+function removePost(id) {
+  return postRepository.remove(Number(id));
+}
+
+module.exports = {
+  listPosts,
+  getPost,
+  createPost,
+  updatePost,
+  removePost,
+};
