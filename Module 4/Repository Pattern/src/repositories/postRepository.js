@@ -1,26 +1,30 @@
 const postStore = require('../data/postStore');
 
-// Only this file knows how posts are stored.
-// When switching to Prisma, only this repository's
-// storage implementation should change.
+// Map is the internal storage implementation.
+// When switching to Prisma, only this repository changes.
+// The service continues using the same five methods.
+
+const posts = new Map(
+  postStore.posts.map((post) => [post.id, post])
+);
+
+let nextId = postStore.nextId();
 
 function findAll() {
-  return [...postStore.posts];
+  return Array.from(posts.values());
 }
 
 function findById(id) {
-  return postStore.posts.find(
-    (post) => post.id === Number(id)
-  ) || null;
+  return posts.get(Number(id)) || null;
 }
 
 function create(fields) {
   const post = {
-    id: postStore.nextId(),
+    id: nextId++,
     ...fields,
   };
 
-  postStore.posts.push(post);
+  posts.set(post.id, post);
 
   return post;
 }
@@ -37,15 +41,7 @@ function update(id, patch) {
 }
 
 function remove(id) {
-  const index = postStore.posts.findIndex(
-    (post) => post.id === Number(id)
-  );
-
-  if (index === -1) return false;
-
-  postStore.posts.splice(index, 1);
-
-  return true;
+  return posts.delete(Number(id));
 }
 
 module.exports = {
