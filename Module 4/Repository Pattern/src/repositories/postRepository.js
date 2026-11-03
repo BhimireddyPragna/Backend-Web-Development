@@ -1,14 +1,11 @@
-const postStore = require('../data/postStore');
-
-// Map is the internal storage implementation.
+// Map is the authoritative storage.
+// The repository owns both storage and ID generation.
 // When switching to Prisma, only this repository changes.
-// The service continues using the same five methods.
+// Services continue using the same five-method interface.
 
-const posts = new Map(
-  postStore.posts.map((post) => [post.id, post])
-);
+const posts = new Map();
 
-let nextId = postStore.nextId();
+let nextId = 1;
 
 function findAll() {
   return Array.from(posts.values());
@@ -34,8 +31,13 @@ function update(id, patch) {
 
   if (!post) return null;
 
-  if (patch.title !== undefined) post.title = patch.title;
-  if (patch.body !== undefined) post.body = patch.body;
+  if (patch.title !== undefined) {
+    post.title = patch.title;
+  }
+
+  if (patch.body !== undefined) {
+    post.body = patch.body;
+  }
 
   return post;
 }
