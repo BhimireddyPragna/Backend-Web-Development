@@ -4,30 +4,31 @@
 const { Server } = require('socket.io');
 
 function initSocket(httpServer) {
-  // TODO 1: Create Socket.IO server
+  // Create Socket.IO server
   const io = new Server(httpServer, {
     cors: { origin: '*' }
   });
 
   io.on('connection', (socket) => {
+    // Connection log
     console.log(`[+] connected: ${socket.id}`);
 
-    // TODO 2: Join a room
+    // Join a room
     socket.on('joinRoom', (data) => {
       socket.join(data.room);
     });
 
-    // TODO 3: Leave a room
+    // Leave a room
     socket.on('leaveRoom', (data) => {
       socket.leave(data.room);
     });
 
-    // TODO 4: Broadcast comment to everyone in the room
-    socket.on('newComment', (data) => {
-      io.to(data.room).emit('commentAdded', data);
+    // Broadcast new post to everyone in the room
+    socket.on('newPost', (data) => {
+      io.to(data.room).emit('postCreated', data);
     });
 
-    // TODO 5: Handle disconnection
+    // Handle disconnection
     socket.on('disconnect', (reason) => {
       console.log(`[-] disconnected: ${socket.id} (${reason})`);
     });
